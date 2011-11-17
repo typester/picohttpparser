@@ -147,6 +147,7 @@ static const char* parse_headers(const char* buf, const char* buf_end,
 {
   for (; ; ++*num_headers) {
     CHECK_EOF();
+
     if (*buf == '\015') {
       ++buf;
       EXPECT_CHAR('\012');
@@ -199,6 +200,10 @@ const char* parse_request(const char* buf, const char* buf_end,
 			  int* minor_version, struct phr_header* headers,
 			  size_t* num_headers, size_t max_headers, int* ret)
 {
+  const char* p;
+  const char* protover;
+  size_t protoverlen;
+
   /* skip first empty line (some clients add CRLF after POST content) */
   CHECK_EOF();
   if (*buf == '\015') {
@@ -213,19 +218,33 @@ const char* parse_request(const char* buf, const char* buf_end,
   ++buf;
   ADVANCE_TOKEN(*path, *path_len);
   ++buf;
-  if ((buf = parse_http_version(buf, buf_end, minor_version, ret)) == NULL) {
-    return NULL;
+  if ((p = parse_http_version(buf, buf_end, minor_version, ret)) == NULL) {
+    if (-1 == *ret) {
+      *minor_version = -1; /* not HTTP */
+      *ret = 0;
+
+      /* ignore this line */
+      buf = get_token_to_eol(buf, buf_end, &protover, &protoverlen, ret);
+      ++buf;
+    }
+    else {
+      return NULL;
+    }
   }
-  if (*buf == '\015') {
-    ++buf;
-    EXPECT_CHAR('\012');
-  } else if (*buf == '\012') {
-    ++buf;
-  } else {
-    *ret = -1;
-    return NULL;
+  else {
+    buf = p;
+
+    if (*buf == '\015') {
+      ++buf;
+      EXPECT_CHAR('\012');
+    } else if (*buf == '\012') {
+      ++buf;
+    } else {
+      *ret = -1;
+      return NULL;
+    }
   }
-  
+
   return parse_headers(buf, buf_end, headers, num_headers, max_headers, ret);
 }
 

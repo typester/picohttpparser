@@ -28,7 +28,7 @@ int main(void)
   struct phr_header headers[4];
   size_t num_headers;
   
-  tests(42);
+  tests(46);
   
 #define PARSE(s, last_len, exp, comment)				\
   num_headers = sizeof(headers) / sizeof(headers[0]);			\
@@ -91,6 +91,11 @@ int main(void)
 	-2, "slowloris (incomplete)");
   PARSE("GET /hoge HTTP/1.0\r\n\r\n", strlen("GET /hoge HTTP/1.0\r\n\r\n") - 1,
 	0, "slowloris (complete)");
+
+  PARSE("GET * RSTP/1.0\r\n\r\n", 0, 0, "not HTTP");
+  ok(strrcmp(method, method_len, "GET"), "rstp method ok");
+  ok(strrcmp(path, path_len, "*"), "rstp path ok");
+  ok(-1 == minor_version, "minor_version == -1 when protocol is not HTTP");
   
 #undef PARSE
   
