@@ -28,7 +28,7 @@ int main(void)
   struct phr_header headers[4];
   size_t num_headers;
   
-  tests(46);
+  tests(49);
   
 #define PARSE(s, last_len, exp, comment)				\
   num_headers = sizeof(headers) / sizeof(headers[0]);			\
@@ -96,6 +96,10 @@ int main(void)
   ok(strrcmp(method, method_len, "GET"), "rstp method ok");
   ok(strrcmp(path, path_len, "*"), "rstp path ok");
   ok(-1 == minor_version, "minor_version == -1 when protocol is not HTTP");
+
+  PARSE("GET * RSTP/1.0\r\nFoo: bar\r\nBar: buz\r\n\r\n", 0, 0, "not HTTP 2");
+  ok(strrcmp(headers[0].name, headers[0].name_len, "Foo"), "header name #1");
+  ok(strrcmp(headers[1].name, headers[1].name_len, "Bar"), "header name #2");
   
 #undef PARSE
   

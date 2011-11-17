@@ -225,7 +225,6 @@ const char* parse_request(const char* buf, const char* buf_end,
 
       /* ignore this line */
       buf = get_token_to_eol(buf, buf_end, &protover, &protoverlen, ret);
-      ++buf;
     }
     else {
       return NULL;
