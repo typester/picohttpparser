@@ -157,6 +157,7 @@ static const char* parse_protocol_version(const char* buf, const char* buf_end,
     *protocol     = buf;
     *protocol_len = 0;
 
+    CHECK_EOF();
     while ('/' != *buf++) {
         CHECK_EOF();
         *protocol_len = *protocol_len + 1;
