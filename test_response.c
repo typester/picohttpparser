@@ -20,10 +20,13 @@ int strrcmp(const char* s, size_t l, const char* t)
 
 int main(void)
 {
+  int major_version;
   int minor_version;
   int status;
   const char *msg;
   size_t msg_len;
+  const char* protocol;
+  size_t protocol_len;
   struct phr_header headers[4];
   size_t num_headers;
   
@@ -31,7 +34,7 @@ int main(void)
   
 #define PARSE(s, last_len, exp, comment)				\
   num_headers = sizeof(headers) / sizeof(headers[0]);			\
-  ok(phr_parse_response(s, strlen(s), &minor_version, &status,       	\
+  ok(phr_parse_response(s, strlen(s), &protocol, &protocol_len, &major_version, &minor_version, &status, \
 		       &msg, &msg_len, headers,		                \
 		       &num_headers, last_len)				\
     == (exp == 0 ? strlen(s) : exp),					\

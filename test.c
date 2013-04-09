@@ -24,18 +24,21 @@ int main(void)
   size_t method_len;
   const char* path;
   size_t path_len;
+  const char* protocol;
+  size_t protocol_len;
+  int major_version;
   int minor_version;
   struct phr_header headers[4];
   size_t num_headers;
   
   tests(42);
   
-#define PARSE(s, last_len, exp, comment)				\
-  num_headers = sizeof(headers) / sizeof(headers[0]);			\
-  ok(phr_parse_request(s, strlen(s), &method, &method_len, &path,	\
-		       &path_len, &minor_version, headers,		\
-		       &num_headers, last_len)				\
-    == (exp == 0 ? strlen(s) : exp),					\
+#define PARSE(s, last_len, exp, comment)                        \
+  num_headers = sizeof(headers) / sizeof(headers[0]);               \
+  ok(phr_parse_request(s, strlen(s), &method, &method_len, &path,       \
+          &path_len, &protocol, &protocol_len, &major_version, &minor_version, headers, \
+          &num_headers, last_len)                                       \
+      == (exp == 0 ? strlen(s) : exp),                                  \
     comment)
   
   PARSE("GET / HTTP/1.0\r\n\r\n", 0, 0, "simple");
